@@ -44,7 +44,20 @@
   }
   #panel-toggle:hover { color: #fff; }
   #panel-body { padding: 6px 12px 10px; max-height: 72vh; overflow-y: auto; }
-  #panel.collapsed #panel-body { display: none; }
+  /* 收起状态:整个面板隐藏,只显示一个圆形悬浮按钮 */
+  #panel-launcher {
+    position: fixed; top: 16px; right: 16px;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(20, 20, 26, 0.85);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #e8a04c; font-size: 17px; line-height: 1;
+    cursor: pointer; z-index: 9;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    display: none;
+  }
+  #panel-launcher:hover { background: rgba(45,45,54,0.95); }
+  body.panel-collapsed #panel { display: none; }
+  body.panel-collapsed #panel-launcher { display: block; }
   .row { display: flex; align-items: center; margin: 5px 0; gap: 8px; }
   .row label { flex: 0 0 78px; color: #bbb; }
   .row input[type=range] { flex: 1; height: 4px; accent-color: #e8a04c; cursor: pointer; }
@@ -61,10 +74,9 @@
     font: 12px Consolas, monospace; cursor: pointer;
   }
   #panel-reset:hover { background: rgba(255,255,255,0.16); color: #fff; }
-  #panel.collapsed #panel-footer { display: none; }
 </style>
 </head>
-<body>
+<body class="panel-collapsed">
 <canvas id="glcanvas"></canvas>
 <div id="hud">
   <b>Wormhood</b> · 作者 finalman · 来源
@@ -72,6 +84,7 @@
   拖动鼠标照亮画面 · 空格暂停 · R 重置时间 · F 全屏 · 右上角面板可实时调参
 </div>
 
+<button id="panel-launcher" title="打开参数面板">⚙</button>
 <div id="panel">
   <div id="panel-header"><span>⚙ 参数调节</span><button id="panel-toggle">−</button></div>
   <div id="panel-body"></div>
@@ -537,13 +550,12 @@ const PRESET_ORIGINAL = {
 document.getElementById("panel-reset").addEventListener("click", () => applyPreset({}));
 document.getElementById("panel-original").addEventListener("click", () => applyPreset(PRESET_ORIGINAL));
 
-// 面板折叠
+// 面板收起/展开:收起时整个面板隐藏,只留右上角的圆形 ⚙ 按钮
 const panel = document.getElementById("panel");
 const toggle = document.getElementById("panel-toggle");
-toggle.addEventListener("click", () => {
-  panel.classList.toggle("collapsed");
-  toggle.textContent = panel.classList.contains("collapsed") ? "+" : "−";
-});
+const launcher = document.getElementById("panel-launcher");
+toggle.addEventListener("click", () => document.body.classList.add("panel-collapsed"));
+launcher.addEventListener("click", () => document.body.classList.remove("panel-collapsed"));
 
 // 面板拖动(按住标题栏)
 const header = document.getElementById("panel-header");
